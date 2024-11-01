@@ -4,14 +4,10 @@ LABEL maintainer="Quinten Hofmeijer"
 
 ENV NODE_VERSION=20.12.0
 ENV TZ=UTC
-ENV MYSQL_ROOT_PASSWORD=password
-ENV MYSQL_DATABASE=testing
-ENV MYSQL_USER=sail
-ENV MYSQL_PASSWORD=password
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Install PHP
+# Install PHP and MySQL
 RUN apt-get update \
     && mkdir -p /etc/apt/keyrings \
     && apt-get install -y gnupg gosu curl ca-certificates zip unzip git supervisor sqlite3 libcap2-bin libpng-dev python2 dnsutils librsvg2-bin fswatch ffmpeg nano libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6 xauth xvfb \
@@ -27,17 +23,9 @@ RUN apt-get update \
        php8.2-ldap \
        php8.2-msgpack php8.2-igbinary php8.2-redis php8.2-swoole \
        php8.2-memcached php8.2-pcov php8.2-xdebug \
+    && apt-get install -y mysql-server \
     && apt-get update \
     && apt-get install -y mysql-client
-
-# Install MySQL server
-RUN apt-get update && apt-get install -y mysql-server \
-    && service mysql start \
-    && mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD}';" \
-    && mysql -e "CREATE DATABASE ${MYSQL_DATABASE};" \
-    && mysql -e "CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';" \
-    && mysql -e "GRANT ALL ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';" \
-    && mysql -e "FLUSH PRIVILEGES;"
 
 # Install Git
 RUN apt-get -y install git
@@ -59,6 +47,3 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Configure Laravel script
 ADD configure-laravel.sh /usr/bin/configure-laravel
 RUN chmod +x /usr/bin/configure-laravel
-
-# Expose MySQL port
-EXPOSE 3306
