@@ -5,8 +5,8 @@ LABEL maintainer="Quinten Hofmeijer"
 ENV NODE_VERSION=20.12.0
 ENV TZ=UTC
 ENV MYSQL_ROOT_PASSWORD=password
-ENV MYSQL_DATABASE=laravel
-ENV MYSQL_USER=root
+ENV MYSQL_DATABASE=testing
+ENV MYSQL_USER=sail
 ENV MYSQL_PASSWORD=password
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
